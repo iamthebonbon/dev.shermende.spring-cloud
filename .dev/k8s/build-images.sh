@@ -5,7 +5,7 @@ docker build -f app-reference/src/main/docker/Dockerfile -t app-reference:0.0.1 
 docker build -f app-game/src/main/docker/Dockerfile -t app-game:0.0.1 ./app-game
 docker build -f env-sba/src/main/docker/Dockerfile -t env-sba:0.0.1 ./env-sba
 
-kubectl apply -f cluster-role.yml
+kubectl apply -f .dev/k8s/cluster-role.yml
 
 kubectl create namespace env-kafka
 kubectl create serviceaccount env-kafka-sa -n env-kafka

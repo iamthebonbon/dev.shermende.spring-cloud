@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -37,6 +37,7 @@ public class JwtAuthorizationServerBeansConfiguration {
     private final UserDetailsService userDetailsService;
     @Qualifier("objectPostProcessor")
     private final ObjectPostProcessor<Object> objectObjectPostProcessor;
+    private final ResourceLoader resourceLoader;
 
     /**
      * Jwt authorization server authentication manager
@@ -82,8 +83,7 @@ public class JwtAuthorizationServerBeansConfiguration {
         @Value("${security.oauth2.authorization.jwt.key-alias}") String keyAlias,
         @Value("${security.oauth2.authorization.jwt.key-password}") String keyPassword
     ) {
-        final ClassPathResource keyStore = new ClassPathResource(privateKeyFile);
-        final KeyStoreKeyFactory keyStoreKeyFactory = new KeyStoreKeyFactory(keyStore, keyStorePassword.toCharArray());
+        final KeyStoreKeyFactory keyStoreKeyFactory = new KeyStoreKeyFactory(resourceLoader.getResource(privateKeyFile), keyStorePassword.toCharArray());
         return keyStoreKeyFactory.getKeyPair(keyAlias);
     }
 

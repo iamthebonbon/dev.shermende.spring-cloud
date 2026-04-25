@@ -1,0 +1,55 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-reference
+  namespace: app-reference
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: app-reference
+  template:
+    metadata:
+      name: app-reference
+      labels:
+        app.kubernetes.io/name: app-reference
+    spec:
+      containers:
+        - name: app-reference
+          image: app-reference:0.0.1
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8100
+          env:
+            - name: spring.profiles.active
+              value: jwt
+            - name: spring.datasource.driver-class-name
+              value: org.postgresql.Driver
+            - name: spring.datasource.url
+              value: jdbc:postgresql://env-postgres-reference.env-postgres.svc.cluster.local:5432/reference
+            - name: spring.datasource.username
+              value: postgres
+            - name: spring.datasource.password
+              value: postgres
+            - name: spring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation
+              value: "true"
+            - name: spring.security.user.name
+              value: app-reference
+            - name: spring.security.user.password
+              value: app-reference
+            - name: spring.security.oauth2.resourceserver.jwt.jwk-set-uri
+              value: http://env-authorization.env-authorization.svc.cluster.local:8000/.well-known/jwks.json
+      serviceAccountName: app-reference-sa
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: app-reference
+  namespace: app-reference
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: app-reference
+  ports:
+    - port: 8100
