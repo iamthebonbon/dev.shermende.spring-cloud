@@ -40,7 +40,7 @@
         <logback-kafka-appender.version>0.2.0-RC2</logback-kafka-appender.version>
         <logstash-logback-encoder.version>6.4</logstash-logback-encoder.version>
         <easy-random.version>4.0.0</easy-random.version>
-        <springfox.version>2.9.2</springfox.version>
+        <springfox.version>2.10.0</springfox.version>
         <spring-boot-grpc.version>2.12.0.RELEASE</spring-boot-grpc.version>
 
         <!--plugins-->
