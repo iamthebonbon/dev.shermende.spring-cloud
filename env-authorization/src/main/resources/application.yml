@@ -1,16 +1,11 @@
 #
 version: @project.version@
 #
-server:
-  port: 8082
-  error:
-    include-binding-errors: always
-#
 spring:
-  security:
-    user:
-      name: support
-      password: support
+  application:
+    name: env-authorization
+  profiles:
+    active: default
   datasource:
     url: jdbc:h2:mem:auth
     driver-class-name: org.h2.Driver
@@ -20,7 +15,3 @@ spring:
     open-in-view: false
     hibernate:
       ddl-auto: update
-#
-management:
-  server:
-    port: 7082

@@ -24,21 +24,24 @@
         <module>env-sba</module>
         <module>app-game</module>
         <module>app-reference</module>
+        <module>app-reference-api</module>
     </modules>
 
     <properties>
         <java.version>1.8</java.version>
-        <maven.compiler.target>1.8</maven.compiler.target>
-        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
+        <maven.compiler.source>8</maven.compiler.source>
         <spring-cloud.version>Hoxton.SR9</spring-cloud.version>
-        <spring-boot-admin.version>2.3.1</spring-boot-admin.version>
 
         <!--libraries-->
         <support-spring.version>1.1.2</support-spring.version>
+        <sba.version>2.2.2</sba.version>
         <org.jetbrains.version>20.1.0</org.jetbrains.version>
         <logback-kafka-appender.version>0.2.0-RC2</logback-kafka-appender.version>
         <logstash-logback-encoder.version>6.4</logstash-logback-encoder.version>
         <easy-random.version>4.0.0</easy-random.version>
+        <springfox.version>2.9.2</springfox.version>
+        <spring-boot-grpc.version>2.12.0.RELEASE</spring-boot-grpc.version>
 
         <!--plugins-->
         <jacoco-maven-plugin.version>0.8.3</jacoco-maven-plugin.version>
@@ -62,14 +65,6 @@
             </dependency>
 
             <dependency>
-                <groupId>de.codecentric</groupId>
-                <artifactId>spring-boot-admin-dependencies</artifactId>
-                <version>${spring-boot-admin.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-
-            <dependency>
                 <groupId>dev.shermende</groupId>
                 <artifactId>support-spring</artifactId>
                 <version>${support-spring.version}</version>
@@ -85,6 +80,36 @@
                 <groupId>dev.shermende</groupId>
                 <artifactId>lib-security</artifactId>
                 <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>dev.shermende</groupId>
+                <artifactId>app-reference-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>net.devh</groupId>
+                <artifactId>grpc-server-spring-boot-starter</artifactId>
+                <version>${spring-boot-grpc.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>net.devh</groupId>
+                <artifactId>grpc-client-spring-boot-starter</artifactId>
+                <version>${spring-boot-grpc.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>de.codecentric</groupId>
+                <artifactId>spring-boot-admin-starter-server</artifactId>
+                <version>${sba.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>de.codecentric</groupId>
+                <artifactId>spring-boot-admin-client</artifactId>
+                <version>${sba.version}</version>
             </dependency>
 
             <dependency>
@@ -110,54 +135,45 @@
                 <artifactId>easy-random-core</artifactId>
                 <version>${easy-random.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>io.springfox</groupId>
+                <artifactId>springfox-swagger2</artifactId>
+                <version>${springfox.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.springfox</groupId>
+                <artifactId>springfox-swagger-ui</artifactId>
+                <version>${springfox.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
     <build>
+        <plugins>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco-maven-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
         <pluginManagement>
             <plugins>
-                <!--spring-boot build info-->
-                <plugin>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-maven-plugin</artifactId>
-                    <executions>
-                        <execution>
-                            <id>build-info</id>
-                            <goals>
-                                <goal>build-info</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
-                <!--git info-->
-                <plugin>
-                    <groupId>pl.project13.maven</groupId>
-                    <artifactId>git-commit-id-plugin</artifactId>
-                    <configuration>
-                        <offline>true</offline>
-                    </configuration>
-                </plugin>
-                <!--jacoco code coverage-->
-                <plugin>
-                    <groupId>org.jacoco</groupId>
-                    <artifactId>jacoco-maven-plugin</artifactId>
-                    <version>${jacoco-maven-plugin.version}</version>
-                    <executions>
-                        <execution>
-                            <goals>
-                                <goal>prepare-agent</goal>
-                            </goals>
-                        </execution>
-                        <execution>
-                            <id>report</id>
-                            <phase>prepare-package</phase>
-                            <goals>
-                                <goal>report</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
-                <!--querydsl-->
                 <plugin>
                     <groupId>com.mysema.maven</groupId>
                     <artifactId>apt-maven-plugin</artifactId>

@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: env-authorization
+  namespace: env-authorization
+spec:
+  rules:
+    - host: env-authorization.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: env-authorization
+                port:
+                  number: 18000

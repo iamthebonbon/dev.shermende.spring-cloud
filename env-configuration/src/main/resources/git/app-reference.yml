@@ -1,7 +1,19 @@
 #
 spring:
   datasource:
-    url: jdbc:h2:file:~/spring-cloud/reference
-    driver-class-name: org.h2.Driver
-    username: sa
-    password: password
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://db-reference:5432/reference
+    username: postgres
+    password: postgres
+  security:
+    user:
+      name: app-reference
+      password: app-reference
+  jpa:
+    show-sql: true
+    properties:
+      hibernate.jdbc.lob.non_contextual_creation: true
+#
+management:
+  server:
+    port: 7100

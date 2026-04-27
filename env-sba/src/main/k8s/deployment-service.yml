@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: env-sba
+  namespace: env-sba
+  labels:
+    sba-client: "true"
+    user.name: env-sba
+    user.password: env-sba
+    management.port: "7081"
+spec:
+  type: LoadBalancer
+  selector:
+    app.kubernetes.io/name: env-sba
+  ports:
+    - port: 8081

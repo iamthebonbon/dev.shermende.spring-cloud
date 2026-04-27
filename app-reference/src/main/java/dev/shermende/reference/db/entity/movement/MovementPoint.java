@@ -1,25 +1,30 @@
 package dev.shermende.reference.db.entity.movement;
 
 import dev.shermende.lib.dal.db.entity.TimedEntity;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
-import javax.persistence.*;
-import java.util.List;
+import javax.persistence.Column;
+import javax.persistence.Entity;
 
-@Data
+@Getter
+@Setter
 @Entity
 @Builder
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = true)
 public class MovementPoint extends TimedEntity<Long> {
 
     private static final long serialVersionUID = -5368034288441153128L;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "m2m_point_quest",
-        joinColumns = @JoinColumn(name = "point_id"),
-        inverseJoinColumns = @JoinColumn(name = "quest_id"))
-    private List<Quest> quests;
+    @Column(name = "scenario_id", insertable = false, updatable = false)
+    private Long scenarioId;
+
+    private String intro;
 
 }

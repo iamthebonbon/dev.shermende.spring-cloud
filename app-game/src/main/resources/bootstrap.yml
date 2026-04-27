@@ -1,16 +1,33 @@
 #
+server:
+  port: 8200
+  error:
+    include-binding-errors: always
+#
 spring:
   application:
     name: app-game
-  # spring boot admin client
-  boot:
-    admin:
-      client:
-        enabled: false
-        instance:
-          prefer-ip: true
+  zipkin:
+    enabled: false
+  sleuth:
+    scheduled:
+      skip-pattern: org.springframework.cloud.kubernetes.discovery.KubernetesCatalogWatch|org.springframework.cloud.netflix.hystrix.stream.HystrixStreamTask
   cloud:
-    # ribbon balancer disabled
+    kubernetes:
+      enabled: false
+      loadbalancer:
+        enabled: false
+      discovery:
+        enabled: false
+        all-namespaces: true
+      config:
+        enabled: false
+      secrets:
+        enabled: false
+        paths: /etc/secret
+      reload:
+        enabled: true
+    #
     loadbalancer:
       ribbon:
         enabled: false
@@ -21,10 +38,6 @@ spring:
       discovery:
         enabled: false
         service-id: env-configuration
-  sleuth:
-    enabled: false
-  zipkin:
-    enabled: false
 # declarative rest client
 feign:
   hystrix:
@@ -41,10 +54,12 @@ eureka:
     metadata-map:
       management.port: ${management.server.port}
       management.context-path: /actuator
-      user.name: ${spring.security.user.name}
+      user.name: ${spring.security.user.password}
       user.password: ${spring.security.user.password}
 # management settings
 management:
+  server:
+    port: 7200
   endpoint:
     health:
       show-details: always
@@ -54,7 +69,7 @@ management:
         include: '*'
     web:
       exposure:
-        include: '*'
+        include: '*,jolokia'
   metrics:
     export:
       influx:

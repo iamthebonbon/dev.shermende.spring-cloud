@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: app-reference
+  namespace: app-reference
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+spec:
+  rules:
+    - host: app-reference.local
+      http:
+        paths:
+          - backend:
+              service:
+                name: app-reference
+                port:
+                  number: 8100
+            pathType: ImplementationSpecific
+            path: /

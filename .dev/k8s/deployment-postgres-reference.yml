@@ -1,0 +1,41 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: env-postgres-reference
+  namespace: env-postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: env-postgres-reference
+  template:
+    metadata:
+      name: env-postgres-reference
+      labels:
+        app.kubernetes.io/name: env-postgres-reference
+    spec:
+      containers:
+        - name: env-postgres-reference
+          image: postgres
+          env:
+            - name: POSTGRES_DB
+              value: reference
+            - name: POSTGRES_USER
+              value: postgres
+            - name: POSTGRES_PASSWORD
+              value: postgres
+      serviceAccountName: env-postgres-sa
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: env-postgres-reference
+  namespace: env-postgres
+spec:
+  type: LoadBalancer
+  selector:
+    app.kubernetes.io/name: env-postgres-reference
+  ports:
+    - port: 5432
+#      nodePort: 30544

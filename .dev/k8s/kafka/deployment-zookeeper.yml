@@ -1,0 +1,36 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: env-zookeeper
+  namespace: env-kafka
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: env-zookeeper
+  template:
+    metadata:
+      name: env-zookeeper
+      labels:
+        app.kubernetes.io/name: env-zookeeper
+    spec:
+      containers:
+        - name: env-zookeeper
+          image: confluentinc/cp-zookeeper:5.3.1
+          env:
+            - name: ZOOKEEPER_CLIENT_PORT
+              value: "12181"
+      serviceAccountName: env-kafka-sa
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: env-zookeeper
+  namespace: env-kafka
+spec:
+  selector:
+    app.kubernetes.io/name: env-zookeeper
+  ports:
+    - port: 12181
+

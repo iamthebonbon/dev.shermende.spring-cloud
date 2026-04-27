@@ -11,9 +11,13 @@ import java.util.Map;
 
 public class JwtDefaultAccessTokenConverter extends DefaultAccessTokenConverter {
 
+    private final String subject;
+
     public JwtDefaultAccessTokenConverter(
-        UserAuthenticationConverter userAuthenticationConverter
+            String subject,
+            UserAuthenticationConverter userAuthenticationConverter
     ) {
+        this.subject = subject;
         setUserTokenConverter(userAuthenticationConverter);
     }
 
@@ -26,6 +30,7 @@ public class JwtDefaultAccessTokenConverter extends DefaultAccessTokenConverter 
         final ExtendedUser extendedUser = (ExtendedUser) authentication.getPrincipal();
         final Map<String, Object> payload = new HashMap<>(super.convertAccessToken(token, authentication));
         payload.put("id", extendedUser.getId());
+        payload.put("sub", subject);
         return payload;
     }
 

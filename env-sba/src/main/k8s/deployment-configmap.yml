@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: env-sba
+  namespace: env-sba
+data:
+  application.properties: |-
+    spring.cloud.kubernetes.loadbalancer.enabled=true
+    spring.jmx.enabled=true

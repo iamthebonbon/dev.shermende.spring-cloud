@@ -1,0 +1,148 @@
+version: '2.1'
+
+services:
+  genv-zookeeper:
+    image: confluentinc/cp-zookeeper:5.3.1
+    environment:
+      - ZOOKEEPER_CLIENT_PORT=2181
+  genv-kafka:
+    image: confluentinc/cp-kafka:5.3.1
+    environment:
+      - KAFKA_ADVERTISED_HOST_NAME=genv-kafka
+      - KAFKA_ZOOKEEPER_CONNECT=genv-zookeeper:2181
+      - KAFKA_INTER_BROKER_LISTENER_NAME=LISTENER_INTERNAL
+      - KAFKA_ADVERTISED_LISTENERS=LISTENER_INTERNAL://genv-kafka:9091,LISTENER_EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:9092
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=LISTENER_INTERNAL:PLAINTEXT,LISTENER_EXTERNAL:PLAINTEXT
+      - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
+    depends_on:
+      - genv-zookeeper
+  genv-kafdrop:
+    image: obsidiandynamics/kafdrop:3.23.0
+    ports:
+      - 9000:9000
+    environment:
+      KAFKA_BROKERCONNECT: genv-kafka:9091
+    depends_on:
+      - genv-kafka
+  db-reference:
+    image: postgres
+    environment:
+      - POSTGRES_DB=reference
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+  db-game:
+    image: postgres
+    environment:
+      - POSTGRES_DB=game
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+  env-eureka:
+    build:
+      context: ../../env-eureka/
+      dockerfile: src/main/docker/Dockerfile
+    mem_limit: 512mb
+    ports:
+      - 8761:8761
+    environment:
+      - spring.profiles.active=docker
+    depends_on:
+      - genv-kafka
+  env-configuration:
+    build:
+      context: ../../env-configuration/
+      dockerfile: src/main/docker/Dockerfile
+    mem_limit: 512mb
+    environment:
+      - spring.profiles.active=native
+      - eureka.client.service-url.defaultZone=http://env-eureka:8761/eureka/
+    depends_on:
+      - env-eureka
+  env-authorization:
+    build:
+      context: ../../env-authorization/
+      dockerfile: src/main/docker/Dockerfile
+    restart: always
+    mem_limit: 512mb
+    environment:
+      - spring.profiles.active=docker
+      - eureka.client.enabled=true
+      - eureka.client.service-url.defaultZone=http://env-eureka:8761/eureka/
+      - spring.cloud.config.enabled=true
+      - spring.cloud.config.discovery.enabled=true
+    depends_on:
+      - env-eureka
+      - env-configuration
+  app-game:
+    build:
+      context: ../../app-game/
+      dockerfile: src/main/docker/Dockerfile
+    restart: always
+    mem_limit: 512mb
+    environment:
+      - spring.profiles.active=docker
+      - eureka.client.enabled=true
+      - eureka.client.service-url.defaultZone=http://env-eureka:8761/eureka/
+      - spring.cloud.config.enabled=true
+      - spring.cloud.config.discovery.enabled=true
+      - hystrix.command.BalabobaService#introspect(BalabobaRequestResource).execution.isolation.thread.timeoutInMilliseconds=30000
+    depends_on:
+      - env-eureka
+      - env-configuration
+      - env-authorization
+  app-reference:
+    build:
+      context: ../../app-reference/
+      dockerfile: src/main/docker/Dockerfile
+    restart: always
+    mem_limit: 512mb
+    environment:
+      - spring.profiles.active=docker
+      - eureka.client.enabled=true
+      - eureka.client.service-url.defaultZone=http://env-eureka:8761/eureka/
+      - spring.cloud.config.enabled=true
+      - spring.cloud.config.discovery.enabled=true
+    depends_on:
+      - env-eureka
+      - env-configuration
+      - env-authorization
+  env-zuul:
+    build:
+      context: ../../env-zuul/
+      dockerfile: src/main/docker/Dockerfile
+    restart: always
+    mem_limit: 512mb
+    ports:
+      - 8080:8080
+    environment:
+      - spring.profiles.active=docker
+      - eureka.client.enabled=true
+      - eureka.client.service-url.defaultZone=http://env-eureka:8761/eureka/
+      - spring.cloud.config.enabled=true
+      - spring.cloud.config.discovery.enabled=true
+    depends_on:
+      - app-game
+      - app-reference
+      - env-eureka
+      - env-configuration
+      - env-authorization
+  env-sba:
+    build:
+      context: ../../env-sba/
+      dockerfile: src/main/docker/Dockerfile
+    restart: always
+    mem_limit: 512mb
+    ports:
+      - 8081:8081
+    environment:
+      - spring.profiles.active=docker
+      - eureka.client.enabled=true
+      - eureka.client.service-url.defaultZone=http://env-eureka:8761/eureka/
+      - spring.cloud.config.enabled=true
+      - spring.cloud.config.discovery.enabled=true
+    depends_on:
+      - app-game
+      - app-reference
+      - env-eureka
+      - env-authorization
+      - env-configuration
+      - env-zuul

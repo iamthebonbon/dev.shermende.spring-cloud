@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: env-authorization
+  name: env-authorization
+data:
+  application.properties: |-
+    server.port=8000
+    spring.cloud.kubernetes.loadbalancer.enabled=true
+    spring.jmx.enabled=true
+    spring.zipkin.enabled=true
+    spring.zipkin.sender.type=kafka
+    spring.kafka.bootstrap-servers=env-kafka.env-kafka.svc.cluster.local:19091
+    security.oauth2.authorization.jwt.key-store=jwt/jwt.jks

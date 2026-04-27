@@ -1,5 +1,14 @@
+#
 spring:
   security:
     user:
-      name: configuration
-      password: configuration
+      name: env-sba
+      password: env-sba
+  boot:
+    admin:
+      client:
+        enabled: true
+#
+management:
+  server:
+    port: 7081

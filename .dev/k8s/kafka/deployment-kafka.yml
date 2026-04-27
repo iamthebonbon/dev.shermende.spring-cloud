@@ -1,0 +1,59 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: env-kafka
+  namespace: env-kafka
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: env-kafka
+  template:
+    metadata:
+      name: env-kafka
+      labels:
+        app.kubernetes.io/name: env-kafka
+    spec:
+      containers:
+        - name: env-kafka
+          image: confluentinc/cp-kafka:5.3.1
+          env:
+            - name: MY_POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: MY_HOST_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
+            - name: KAFKA_ADVERTISED_HOST_NAME
+              value: $(MY_POD_IP)
+            - name: KAFKA_ZOOKEEPER_CONNECT
+              value: env-zookeeper:12181
+            - name: KAFKA_INTER_BROKER_LISTENER_NAME
+              value: LISTENER_INTERNAL
+            - name: KAFKA_ADVERTISED_LISTENERS
+              value: LISTENER_INTERNAL://$(MY_POD_IP):19091,LISTENER_EXTERNAL://$(MY_HOST_IP):19092
+            - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
+              value: LISTENER_INTERNAL:PLAINTEXT,LISTENER_EXTERNAL:PLAINTEXT
+            - name: KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR
+              value: "1"
+      serviceAccountName: env-kafka-sa
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: env-kafka
+  namespace: env-kafka
+spec:
+  type: LoadBalancer
+  selector:
+    app.kubernetes.io/name: env-kafka
+  ports:
+    - name: internal
+      port: 19091
+#      nodePort: 30091 # access through linux minikube
+    - name: external
+      port: 19092
+#      nodePort: 30092 # access through linux minikube

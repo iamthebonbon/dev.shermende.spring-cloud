@@ -1,0 +1,41 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: env-postgres-game
+  namespace: env-postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: env-postgres-game
+  template:
+    metadata:
+      name: env-postgres-game
+      labels:
+        app.kubernetes.io/name: env-postgres-game
+    spec:
+      containers:
+        - name: env-postgres-game
+          image: postgres
+          env:
+            - name: POSTGRES_DB
+              value: game
+            - name: POSTGRES_USER
+              value: postgres
+            - name: POSTGRES_PASSWORD
+              value: postgres
+      serviceAccountName: env-postgres-sa
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: env-postgres-game
+  namespace: env-postgres
+spec:
+  type: LoadBalancer
+  selector:
+    app.kubernetes.io/name: env-postgres-game
+  ports:
+    - port: 5432
+#      nodePort: 30543 # access through linux minikube

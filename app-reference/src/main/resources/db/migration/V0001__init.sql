@@ -1,100 +1,60 @@
-create table if not exists translate
-(
-    id         bigint primary key auto_increment,
-    created_at timestamp     not null default now(),
-    updated_at timestamp,
-    locale     varchar(255)  not null,
-    key        varchar(255)  not null,
-    value      varchar(2048) not null,
-    unique (locale, key)
-);
-
 create table if not exists movement_reason
 (
-    id         bigint primary key auto_increment,
-    created_at timestamp not null default now(),
-    updated_at timestamp
+    id          bigserial primary key,
+    created_at  timestamp    not null default now(),
+    updated_at  timestamp,
+    scenario_id bigint       not null,
+    intro       varchar(255) not null
 );
 
 create table if not exists movement_point
 (
-    id         bigint primary key auto_increment,
-    created_at timestamp not null default now(),
-    updated_at timestamp
-);
-
-create table if not exists quest
-(
-    id         bigint primary key auto_increment,
-    created_at timestamp not null default now(),
-    updated_at timestamp
+    id          bigserial primary key,
+    created_at  timestamp     not null default now(),
+    updated_at  timestamp,
+    scenario_id bigint        not null,
+    intro       varchar(4096) not null
 );
 
 create table if not exists movement_scenario
 (
-    id         bigint primary key auto_increment,
-    created_at timestamp not null default now(),
+    id         bigserial primary key,
+    created_at timestamp    not null default now(),
     updated_at timestamp,
-    reason_id  bigint    not null,
-    point_id   bigint    not null
+    reason_id  bigint,
+    point_id   bigint,
+    intro      varchar(255) not null
+
 );
 
-create table if not exists m2m_point_quest
-(
-    point_id bigint not null,
-    quest_id bigint not null
-);
+insert into movement_scenario(intro)
+values ('Злое зло');
 
-insert into translate(locale, key, value)
-values ('en', 'MovementPointModel.1', 'MovementPointModel.1'),
-       ('en', 'MovementReasonModel.1', 'MovementReasonModel.1')
-;
+insert into movement_reason(created_at, scenario_id, intro)
+values (now(), (select id from movement_scenario where intro = 'Злое зло'),
+        'ощущая урчание в животе, вы отправляетесь в путь.');
 
-insert into movement_reason(id, created_at)
-values (1, now()); -- move
-insert into movement_reason(id, created_at)
-values (2, now()); -- accept quest
-insert into movement_reason(id, created_at)
-values (3, now()); -- complete quest
+insert into movement_point(created_at, scenario_id, intro)
+values (now(), (select id from movement_scenario where intro = 'Злое зло'),
+        'Лучше быть последним — первым, чем первым — последним');
 
-insert into movement_point(created_at)
-values (now());
-insert into movement_point(created_at)
-values (now());
-insert into movement_point(created_at)
-values (now());
-insert into movement_point(created_at)
-values (now());
-insert into movement_point(created_at)
-values (now());
-insert into movement_point(created_at)
-values (now());
-insert into movement_point(created_at)
-values (now());
-insert into movement_point(created_at)
-values (now());
-insert into movement_point(created_at)
-values (now());
-insert into movement_point(created_at)
-values (now());
-insert into movement_point(created_at)
-values (now());
-insert into movement_point(created_at)
-values (now());
-insert into movement_point(created_at)
-values (now());
-insert into movement_point(created_at)
-values (now());
-insert into movement_point(created_at)
-values (now());
-insert into movement_point(created_at)
-values (now());
+insert into movement_point(created_at, scenario_id, intro)
+values (now(), (select id from movement_scenario where intro = 'Злое зло'),
+        'На случай, если буду нужен, то я там же, где и был, когда был не нужен');
 
-insert into quest(created_at)
-values (now());
+insert into movement_point(created_at, scenario_id, intro)
+values (now(), (select id from movement_scenario where intro = 'Злое зло'),
+        'На случай, если буду нужен, то я там же, где и был, когда был не нужен');
 
-insert into m2m_point_quest(point_id, quest_id)
-values (1, 1);
+insert into movement_point(created_at, scenario_id, intro)
+values (now(), (select id from movement_scenario where intro = 'Злое зло'),
+        'Если волк молчит то лучше его не перебивай');
 
-insert into movement_scenario(reason_id, point_id)
-values (1, 1);
+insert into movement_point(created_at, scenario_id, intro)
+values (now(), (select id from movement_scenario where intro = 'Злое зло'),
+        'Каждый в цирке думает, что знает в цирке, но не каждый, что в цирке знает, что в цирке не каждый знает думает');
+
+update movement_scenario
+set reason_id = (select id from movement_reason where intro = 'ощущая урчание в животе, вы отправляетесь в путь.'),
+    point_id  = (select id from movement_point where intro = 'Лучше быть последним — первым, чем первым — последним')
+where intro = 'Злое зло'

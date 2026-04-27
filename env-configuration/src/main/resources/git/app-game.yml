@@ -1,7 +1,19 @@
 #
 spring:
   datasource:
-    url: jdbc:h2:file:~/spring-cloud/game
-    driver-class-name: org.h2.Driver
-    username: sa
-    password: password
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://db-game:5432/game
+    username: postgres
+    password: postgres
+  security:
+    user:
+      name: app-game
+      password: app-game
+  jpa:
+    show-sql: true
+    properties:
+      hibernate.jdbc.lob.non_contextual_creation: true
+#
+management:
+  server:
+    port: 7200

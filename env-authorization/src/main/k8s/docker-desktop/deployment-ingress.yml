@@ -1,0 +1,21 @@
+# looks like docker-desktop not work with ingresses https://github.com/kubernetes/ingress-nginx/issues/7686
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: env-authorization
+  namespace: env-authorization
+  annotations:
+    ingress.kubernetes.io/rewrite-target: /
+    kubernetes.io/ingress.class: nginx
+spec:
+  rules:
+    - host: env-authorization.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: env-authorization
+                port:
+                  number: 18000
