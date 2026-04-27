@@ -3,7 +3,6 @@ name: Publish env-sba docker image
 on:
   push:
     branches: [ 'refactor' ]
-    tags: [ 'v*.*.*' ]
 
 jobs:
   push_to_registry:
@@ -31,17 +30,15 @@ jobs:
           cd env-sba
           mvn clean package -DskipTests
 
+      - name: Get commit hash
+        id: commit
+        run: echo "hash=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ secrets.DOCKERHUB_USERNAME }}/env-sba
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
@@ -49,5 +46,6 @@ jobs:
           context: ./env-sba
           file: ./env-sba/src/main/docker/Dockerfile
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/env-sba:${{ steps.commit.outputs.hash }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/env-sba:latest
