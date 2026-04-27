@@ -1,0 +1,19 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: env-fluent
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: env-fluent
+  template:
+    metadata:
+      name: env-fluent
+      labels:
+        app.kubernetes.io/name: env-fluent
+    spec:
+      containers:
+        - name: env-fluent
+          image: local-fluentd:0.0.1

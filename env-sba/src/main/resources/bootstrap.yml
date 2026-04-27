@@ -1,16 +1,28 @@
 #
+server:
+  port: 8081
+#
 spring:
   application:
     name: env-sba
-  # spring boot admin client
-  boot:
-    admin:
-      client:
-        enabled: false
-        instance:
-          prefer-ip: true
   cloud:
-    # ribbon balancer disabled
+    kubernetes:
+      enabled: false
+      loadbalancer:
+        enabled: false
+      config:
+        enabled: false
+      secrets:
+        enabled: false
+        enable-api: true
+      discovery:
+        enabled: false
+        all-namespaces: true
+        service-labels:
+          sba-client: true
+      reload:
+        enabled: true
+    #
     loadbalancer:
       ribbon:
         enabled: false
@@ -21,6 +33,11 @@ spring:
       discovery:
         enabled: false
         service-id: env-configuration
+  # force sba-client disable
+  boot:
+    admin:
+      client:
+        enabled: false
 # schema registry
 eureka:
   client:
@@ -30,10 +47,12 @@ eureka:
     metadata-map:
       management.port: ${management.server.port}
       management.context-path: /actuator
-      user.name: ${spring.security.user.name}
+      user.name: ${spring.security.user.password}
       user.password: ${spring.security.user.password}
-# management settings
+#
 management:
+  server:
+    port: 7081
   endpoint:
     health:
       show-details: always

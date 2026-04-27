@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-game
+  namespace: app-game
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: app-game
+  template:
+    metadata:
+      name: app-game
+      labels:
+        app.kubernetes.io/name: app-game
+    spec:
+      containers:
+        - name: app-game
+          image: 192.168.0.109:5000/app-game:latest
+          env:
+            - name: spring.profiles.active
+              value: kubernetes,jwt
+            - name: spring.cloud.kubernetes.enabled
+              value: "true"
+            - name: spring.cloud.kubernetes.discovery.enabled
+              value: "true"
+            - name: spring.cloud.kubernetes.config.enabled
+              value: "true"
+            - name: spring.cloud.kubernetes.secrets.enabled
+              value: "true"
+          volumeMounts:
+            - name: volume-secret-app-game
+              mountPath: /etc/secret
+      volumes:
+        - name: volume-secret-app-game
+          secret:
+            secretName: app-game
+      serviceAccountName: app-game-sa

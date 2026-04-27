@@ -1,82 +1,80 @@
 package dev.shermende.game.assembler;
 
+import dev.shermende.game.assembler.resource.PointCtx;
+import dev.shermende.game.assembler.resource.ReasonCtx;
+import dev.shermende.game.assembler.resource.RouteCtx;
 import dev.shermende.game.controller.GameController;
 import dev.shermende.game.db.entity.Game;
-import dev.shermende.game.model.*;
-import dev.shermende.game.service.feign.TranslateService;
+import dev.shermende.game.model.GameModel;
+import dev.shermende.game.model.PointModel;
+import dev.shermende.game.model.ReasonModel;
+import dev.shermende.game.model.RouteModel;
+import dev.shermende.game.service.GameRouteService;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSupport;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class GameModelAssembler extends RepresentationModelAssemblerSupport<Game, GameModel> {
 
-    private final TranslateService translateService;
+    private final GameRouteService routeService;
+    private final PointModelAssembler pointModelAssembler;
+    private final ReasonModelAssembler reasonModelAssembler;
+    private final RouteModelAssembler routeModelAssembler;
 
     public GameModelAssembler(
-        TranslateService translateService
+            GameRouteService routeService,
+            PointModelAssembler pointModelAssembler,
+            ReasonModelAssembler reasonModelAssembler,
+            RouteModelAssembler routeModelAssembler
     ) {
         super(GameController.class, GameModel.class);
-        this.translateService = translateService;
+        this.routeService = routeService;
+        this.pointModelAssembler = pointModelAssembler;
+        this.reasonModelAssembler = reasonModelAssembler;
+        this.routeModelAssembler = routeModelAssembler;
     }
 
     @Override
-    public @NotNull GameModel toModel(@NotNull Game entity) {
+    public @NotNull GameModel toModel(
+            @NotNull Game entity
+    ) {
         return GameModel
-            .builder()
-            .id(entity.getId())
-            .scenario(getScenario(entity))
-            .reason(getReason(entity))
-            .point(getPoint(entity))
-            .build();
+                .builder()
+                .id(entity.getId())
+                .reason(getReason(entity))
+                .target(getTarget(entity))
+                .routes(getRoutes(entity))
+                .build();
     }
 
-    private MovementScenarioModel getScenario(@NotNull Game entity) {
-        return MovementScenarioModel
-            .builder()
-            .id(entity.getScenarioId())
-            .title(getTitle(MovementScenarioModel.class, entity.getScenarioId()))
-            .description(getDescription(MovementScenarioModel.class, entity.getScenarioId()))
-            .build();
+    @NotNull
+    private ReasonModel getReason(
+            @NotNull Game entity
+    ) {
+        return reasonModelAssembler.toModel(ReasonCtx.builder()
+                .gameId(entity.getId()).reasonId(entity.getReasonId()).build());
     }
 
-    private MovementReasonModel getReason(@NotNull Game entity) {
-        return MovementReasonModel
-            .builder()
-            .id(entity.getReasonId())
-            .title(getTitle(MovementReasonModel.class, entity.getReasonId()))
-            .description(getDescription(MovementReasonModel.class, entity.getReasonId()))
-            .build();
+    @NotNull
+    private PointModel getTarget(
+            @NotNull Game entity
+    ) {
+        return pointModelAssembler.toModel(PointCtx.builder()
+                .gameId(entity.getId()).pointId(entity.getPointId()).build());
     }
 
-    private MovementPointModel getPoint(@NotNull Game entity) {
-        return MovementPointModel
-            .builder()
-            .id(entity.getPointId())
-            .title(getTitle(MovementPointModel.class, entity.getPointId()))
-            .description(getDescription(MovementPointModel.class, entity.getPointId()))
-            .build();
-    }
-
-    protected String getTitle(@NotNull Class<?> clazz, @NotNull Long id) {
-        final String key = getTitleKey(clazz, id);
-        return translateService.findOneByKey(LocaleContextHolder.getLocale().getLanguage(), key)
-            .orElse(TranslateModel.builder().value(key).build()).getValue();
-    }
-
-    protected String getDescription(@NotNull Class<?> clazz, @NotNull Long id) {
-        final String key = getDescriptionKey(clazz, id);
-        return translateService.findOneByKey(LocaleContextHolder.getLocale().getLanguage(), key)
-            .orElse(TranslateModel.builder().value(key).build()).getValue();
-    }
-
-    private String getTitleKey(@NotNull Class<?> clazz, @NotNull Long id) {
-        return String.format("%s.title.%d", clazz.getSimpleName(), id);
-    }
-
-    private String getDescriptionKey(@NotNull Class<?> clazz, @NotNull Long id) {
-        return String.format("%s.description.%d", clazz.getSimpleName(), id);
+    @NotNull
+    private List<RouteModel> getRoutes(
+            @NotNull Game entity
+    ) {
+        return routeService.findAllByPoint(entity.getId(), entity.getPointId()).stream()
+                .map(route -> RouteCtx.builder().route(route).currentPoint(entity.getPointId()).build())
+                .map(routeModelAssembler::toModel)
+                .collect(Collectors.toList());
     }
 
 }

@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: env-sba
+  namespace: env-sba
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+spec:
+  rules:
+    - host: env-sba.local
+      http:
+        paths:
+          - backend:
+              service:
+                name: env-sba
+                port:
+                  number: 8081
+            pathType: ImplementationSpecific
+            path: /

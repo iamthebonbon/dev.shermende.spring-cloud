@@ -1,16 +1,9 @@
 #
 version: @project.version@
 #
-server:
-  port: 8200
-  error:
-    include-binding-errors: always
-#
 spring:
-  security:
-    user:
-      name: support
-      password: support
+  profiles:
+    active: default
   datasource:
     url: jdbc:h2:mem:game
     driver-class-name: org.h2.Driver
@@ -19,8 +12,4 @@ spring:
   jpa:
     open-in-view: false
     hibernate:
-      ddl-auto: update
-#
-management:
-  server:
-    port: 7200
+      ddl-auto: validate

@@ -30,10 +30,10 @@ public class JwtResourceServerConfiguration extends WebSecurityConfigurerAdapter
     @Override
     public void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
-            .anyRequest().authenticated()
-            .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            .and().cors()
-            .and().oauth2ResourceServer().jwt().authenticationManager(authenticationManager);
+                .anyRequest().authenticated()
+                .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and().cors()
+                .and().oauth2ResourceServer().jwt().authenticationManager(authenticationManager);
     }
 
 }

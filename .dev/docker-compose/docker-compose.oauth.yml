@@ -1,0 +1,14 @@
+version: '2.1'
+
+services:
+  env-authorization:
+    environment:
+      - spring.profiles.active=docker,oauth
+  app-game:
+    environment:
+      - spring.profiles.active=docker,oauth
+      - x-oauth.url=http://env-authorization:8082/oauth/check_token
+  app-reference:
+    environment:
+      - spring.profiles.active=docker,oauth
+      - x-oauth.url=http://env-authorization:8082/oauth/check_token

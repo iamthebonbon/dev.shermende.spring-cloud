@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: env-authorization
+  namespace: env-authorization
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+spec:
+  rules:
+    - host: env-authorization.local
+      http:
+        paths:
+          - backend:
+              service:
+                name: env-authorization
+                port:
+                  number: 8000
+            pathType: ImplementationSpecific
+            path: /

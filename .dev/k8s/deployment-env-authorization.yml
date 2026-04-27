@@ -1,0 +1,59 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: env-authorization
+  namespace: env-authorization
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: env-authorization
+  template:
+    metadata:
+      name: env-authorization
+      labels:
+        app.kubernetes.io/name: env-authorization
+    spec:
+      containers:
+        - name: env-authorization
+          image: env-authorization:0.0.1
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8000
+          env:
+            - name: spring.profiles.active
+              value: jwt
+            - name: security.oauth2.authorization.jwt.key-store
+              value: file:/var/jwt.jks
+            - name: security.oauth2.authorization.jwt.key-store-password
+              value: password
+            - name: security.oauth2.authorization.jwt.key-alias
+              value: jwt
+            - name: security.oauth2.authorization.jwt.key-password
+              value: password
+            - name: spring.security.user.name
+              value: env-authorization
+            - name: spring.security.user.password
+              value: env-authorization
+          volumeMounts:
+            - name: jwt-keystore
+              mountPath: /var/jwt.jks
+              subPath: jwt.jks
+      volumes:
+        - name: jwt-keystore
+          secret:
+            secretName: jwt-keystore
+      serviceAccountName: env-authorization-sa
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: env-authorization
+  namespace: env-authorization
+spec:
+  type: LoadBalancer
+  selector:
+    app.kubernetes.io/name: env-authorization
+  ports:
+    - port: 8000

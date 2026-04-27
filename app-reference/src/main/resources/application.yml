@@ -2,15 +2,12 @@
 version: @project.version@
 #
 server:
-  port: 8100
   error:
     include-binding-errors: always
 #
 spring:
-  security:
-    user:
-      name: support
-      password: support
+  profiles:
+    active: default
   datasource:
     url: jdbc:h2:mem:reference
     driver-class-name: org.h2.Driver
@@ -20,7 +17,3 @@ spring:
     open-in-view: false
     hibernate:
       ddl-auto: validate
-#
-management:
-  server:
-    port: 7100

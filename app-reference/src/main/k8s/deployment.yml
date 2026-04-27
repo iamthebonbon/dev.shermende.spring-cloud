@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-reference
+  namespace: app-reference
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: app-reference
+  template:
+    metadata:
+      name: app-reference
+      labels:
+        app.kubernetes.io/name: app-reference
+    spec:
+      containers:
+        - name: app-reference
+          image: image-registry.local:5000/app-reference:latest
+          env:
+            - name: spring.profiles.active
+              value: kubernetes,jwt
+            - name: spring.cloud.kubernetes.enabled
+              value: "true"
+            - name: spring.cloud.kubernetes.discovery.enabled
+              value: "true"
+            - name: spring.cloud.kubernetes.config.enabled
+              value: "true"
+            - name: spring.cloud.kubernetes.secrets.enabled
+              value: "true"
+          volumeMounts:
+            - name: volume-secret-app-reference
+              mountPath: /etc/secret
+      volumes:
+        - name: volume-secret-app-reference
+          secret:
+            secretName: app-reference
+      serviceAccountName: app-reference-sa
