@@ -85,4 +85,8 @@ public abstract class AbstractCrudService<E, I, Q extends EntityPath<?>> impleme
         queryDslRepository.delete(entity);
     }
 
+    @Override
+    public long count(Predicate predicate) {
+        return queryDslRepository.count(predicate);
+    }
 }

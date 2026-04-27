@@ -1,58 +1,40 @@
 package dev.shermende.game.service.impl;
 
-import dev.shermende.game.db.entity.Game;
+import dev.shermende.game.db.entity.QRoute;
 import dev.shermende.game.db.entity.Route;
-import dev.shermende.game.model.MovementPointModel;
-import dev.shermende.game.processor.RouteGenerateProcessor;
-import dev.shermende.game.processor.RouteGenerateProcessorCtx;
-import dev.shermende.game.resource.RouteCreateResource;
-import dev.shermende.game.service.RouteService;
-import dev.shermende.game.service.crud.RouteCrudService;
-import dev.shermende.game.service.feign.MovementPointService;
-import lombok.RequiredArgsConstructor;
+import dev.shermende.game.db.repository.RouteRepository;
+import dev.shermende.game.service.GameRouteService;
+import dev.shermende.lib.dal.service.AbstractCrudService;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
-import org.springframework.hateoas.PagedModel;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
-public class RouteServiceImpl implements RouteService {
+public class RouteServiceImpl extends AbstractCrudService<Route, Long, QRoute>
+        implements GameRouteService {
 
-    private final RouteCrudService crudService;
-    private final MovementPointService movementPointService;
-    private final RouteGenerateProcessor routeGenerateProcessor;
+    private final RouteRepository repository;
 
-    @Override
-    @Transactional
-    public Game generateMap(
-        @NotNull Game game
+    public RouteServiceImpl(
+            RouteRepository repository
     ) {
-        final PagedModel<MovementPointModel> points = movementPointService.findAll();
-
-        points.forEach(source ->
-            points.forEach(target ->
-                routeGenerateProcessor.execute(RouteGenerateProcessorCtx.builder().game(game).source(source).target(target).build())));
-        log.debug("[Map] [generated] [{}]", game);
-        return game;
+        super(repository);
+        this.repository = repository;
     }
 
-    @NotNull
     @Override
-    public Route create(
-        @NotNull RouteCreateResource resource
+    public List<Route> findAllByPoint(
+            Long gameId,
+            Long pointId
     ) {
-        final Route entity = crudService.save(Route.builder()
-            .gameId(resource.getGameId())
-            .sourcePointId(resource.getSourcePointId())
-            .reasonId(resource.getReasonId())
-            .targetPointId(resource.getTargetPointId())
-            .build());
-        log.debug("[Route] [created] [{}]", entity);
-        return entity;
+        return findAll(
+                QRoute.route.gameId.eq(gameId)
+                        .and(
+                                QRoute.route.sourcePointId.eq(pointId)
+                                        .or(QRoute.route.targetPointId.eq(pointId))
+                        )
+        );
     }
-
-
 }

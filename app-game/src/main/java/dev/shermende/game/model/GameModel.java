@@ -1,12 +1,17 @@
 package dev.shermende.game.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.hateoas.Links;
 import org.springframework.hateoas.RepresentationModel;
 import org.springframework.hateoas.server.core.Relation;
+
+import java.util.List;
 
 @Data
 @Builder
@@ -18,10 +23,17 @@ public class GameModel extends RepresentationModel<GameModel> {
 
     private Long id;
 
-    private MovementScenarioModel scenario;
+    private ReasonModel reason;
 
-    private MovementReasonModel reason;
+    private PointModel target;
 
-    private MovementPointModel point;
+    private List<RouteModel> routes;
+
+    @NotNull
+    @Override
+    @JsonIgnore
+    public Links getLinks() {
+        return super.getLinks();
+    }
 
 }

@@ -1,11 +1,11 @@
 package dev.shermende.game.service.feign.global;
 
-import dev.shermende.game.service.feign.MovementPointService;
+import dev.shermende.reference.lib.api.MovementPointApiService;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.context.annotation.Profile;
 
 @Profile({"!local"})
-@FeignClient(contextId = "movementPoint", value = "app-reference", path = "/movementPoints", fallbackFactory = MovementPointService.MovementPointServiceFallback.class)
-public interface MovementPointGlobalService extends MovementPointService {
+@FeignClient(contextId = "movementPoint", value = "app-reference")
+public interface MovementPointGlobalService extends MovementPointApiService {
 
 }

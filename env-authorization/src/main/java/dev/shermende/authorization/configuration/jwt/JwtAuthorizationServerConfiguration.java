@@ -14,12 +14,12 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.A
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
-import org.springframework.security.oauth2.provider.client.JdbcClientDetailsService;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.sql.DataSource;
 import java.security.KeyPair;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Map;
@@ -34,6 +34,8 @@ import java.util.Map;
 @EnableAuthorizationServer
 public class JwtAuthorizationServerConfiguration extends AuthorizationServerConfigurerAdapter {
 
+    @Qualifier("dataSource")
+    private final DataSource dataSource;
     @Qualifier("jwtAuthorizationServerTokenStore")
     private final TokenStore tokenStore;
     @Qualifier("appUserDetailsService")
@@ -42,15 +44,13 @@ public class JwtAuthorizationServerConfiguration extends AuthorizationServerConf
     private final JwtAccessTokenConverter accessTokenConverter;
     @Qualifier("jwtAuthorizationServerAuthenticationManager")
     private final AuthenticationManager authenticationManager;
-    @Qualifier("jdbcClientDetailsService")
-    private final JdbcClientDetailsService jdbcClientDetailsService;
 
     /**
      * Oauth applications storage
      */
     @Override
     public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
-        clients.withClientDetails(jdbcClientDetailsService);
+        clients.jdbc(dataSource);
     }
 
     /**
@@ -64,7 +64,7 @@ public class JwtAuthorizationServerConfiguration extends AuthorizationServerConf
     }
 
     /**
-     * Jwt authorization server settings
+     * JWT authorization server settings
      */
     @Override
     public void configure(AuthorizationServerEndpointsConfigurer endpoints) {

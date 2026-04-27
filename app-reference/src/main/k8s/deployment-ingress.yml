@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: app-reference
+  namespace: app-reference
+spec:
+  rules:
+    - host: app-reference.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: app-reference
+                port:
+                  number: 8100

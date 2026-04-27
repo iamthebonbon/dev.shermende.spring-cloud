@@ -37,4 +37,6 @@ public interface CrudService<E, I> {
 
     void delete(E entity);
 
+    long count(Predicate predicate);
+
 }

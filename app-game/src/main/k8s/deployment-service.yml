@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: app-game
+  namespace: app-game
+  labels:
+    #
+    sba-client: "true"
+    # pass metadata to sba
+    user.name: app-game
+    user.password: app-game
+    management.port: "7200"
+spec:
+  type: LoadBalancer
+  selector:
+    app.kubernetes.io/name: app-game
+  ports:
+    - port: 8200

@@ -30,3 +30,10 @@ $ docker-compose -f docker-compose.yml -f docker-compose.logback.yml -f docker-c
 # run jwt with EFK-log and metrics to influx 
 $ docker-compose -f docker-compose.yml -f docker-compose.logback.yml -f docker-compose.metrics.yml -f docker-compose.jwt.yml up --build -d
 ```
+
+#### JWT keygen
+
+```bash
+keytool -genkey -alias env-authorization -keystore ~/env-authorization.p12 -storetype PKCS12 -keyalg RSA -keysize 4096
+openssl pkcs12 -info -in ~/env-authorization.p12 -nodes 
+```
