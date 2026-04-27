@@ -3,6 +3,8 @@ kind: Ingress
 metadata:
   name: env-sba
   namespace: env-sba
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
 spec:
   rules:
     - host: env-sba.local
