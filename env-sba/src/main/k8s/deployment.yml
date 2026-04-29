@@ -16,8 +16,7 @@ spec:
     spec:
       containers:
         - name: env-sba
-          image: env-sba:0.0.1
-          imagePullPolicy: Never
+          image: iamthebonbon/env-sba:c8f2a55
           env:
             - name: spring.profiles.active
               value: kubernetes,jwt
